@@ -4,6 +4,7 @@ from sympy import python
 from ultralytics import YOLO
 from object_detection.yolov9 import val
 
+
 # Build a YOLOv9c model from pretrained (COCO8 weight)
 model = YOLO("yolov9c.pt")
 
