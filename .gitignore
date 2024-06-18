@@ -16,4 +16,3 @@ evals/*
 
 pose_detection/yolov9-hand-detection
 pose_detection/openPose/openpose
-object_detection/yolov9/yolov9-c.pt
