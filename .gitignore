@@ -1,2 +1,15 @@
+# Ignoriere spezifische Verzeichnisse und Dateien
+wandb/
+.vscode/
+template.sh
+
+# Ignoriere den Inhalt dieser Verzeichnisse
 datasets/*
 exampleData/*
+
+# Ignoriere spezifische Dateitypen
+*.pt
+*.pyc
+
+# Ignoriere den Inhalt dieses Verzeichnisses
+evals/*
