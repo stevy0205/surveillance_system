@@ -13,3 +13,5 @@ exampleData/*
 
 # Ignoriere den Inhalt dieses Verzeichnisses
 evals/*
+pose_detection/yolov9-hand-detection
+pose_detection/openPose/openpose
