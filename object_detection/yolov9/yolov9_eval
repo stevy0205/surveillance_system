@@ -1,0 +1,81 @@
+import torch
+from yolov9.models.yolo import Model
+from yolov9.utils.datasets import create_dataloader
+from yolov9.utils.general import non_max_suppression, scale_coords, xyxy2xywh
+from yolov9.utils.metrics import ap_per_class
+
+# Konfigurationen
+data_cfg = 'dataset.yaml'
+weights = 'runs/train/exp/weights/best.pt'
+img_size = 640
+batch_size = 16
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+# Modell laden
+model = Model(cfg='yolov9.yaml', ch=3, nc=80).to(device)
+model.load_state_dict(torch.load(weights, map_location=device)['model'])
+model.eval()
+
+# Dataloader erstellen
+_, val_loader = create_dataloader(data_cfg, batch_size, img_size, rect=True, rank=-1, pad=0.5, prefix='val: ')
+
+# Evaluierung
+stats, ap, ap_class = [], [], []
+for batch_i, (img, targets, paths, shapes) in enumerate(val_loader):
+    img = img.to(device).float() / 255.0  # [0, 1]
+    targets = targets.to(device)
+
+    # Inferenz
+    with torch.no_grad():
+        inf_out, _ = model(img)  # Inferenz
+
+    # NMS (Non-Maximum Suppression)
+    output = non_max_suppression(inf_out, conf_thres=0.001, iou_thres=0.6)
+
+    # Metriken berechnen
+    for si, pred in enumerate(output):
+        labels = targets[targets[:, 0] == si, 1:]
+        nl = len(labels)
+        tcls = labels[:, 0].tolist() if nl else []  # true class
+        seen = len(stats)
+        if pred is None:
+            if nl:
+                stats.append((torch.zeros(0, 4), torch.Tensor(), torch.Tensor(), tcls))
+            continue
+
+        # Assign all predictions as incorrect
+        correct = torch.zeros(pred.shape[0], dtype=torch.bool, device=device)
+        if nl:
+            detected = []
+            tbox = xyxy2xywh(labels[:, 1:5]) * img_size  # target boxes
+
+            for cls in torch.unique(labels[:, 0]):
+                ti = (labels[:, 0] == cls).nonzero(as_tuple=False).view(-1)
+                pi = (pred[:, 5] == cls).nonzero(as_tuple=False).view(-1)
+
+                if pi.shape[0]:
+                    ious, i = box_iou(pred[pi, :4], tbox[ti]).max(1)
+                    detected_set = set()
+                    for j in (ious > 0.5).nonzero(as_tuple=False):
+                        d = ti[i[j]]
+                        if d.item() not in detected_set:
+                            detected_set.add(d.item())
+                            detected.append(d)
+                            correct[pi[j]] = 1
+                            if len(detected) == nl:
+                                break
+
+        stats.append((correct.cpu(), pred[:, 4].cpu(), pred[:, 5].cpu(), tcls))
+
+# Berechnen der AP (Average Precision)
+stats = [np.concatenate(x, 0) for x in zip(*stats)]
+if len(stats) and stats[0].any():
+    p, r, ap, f1, ap_class = ap_per_class(*stats)
+    ap50, ap = ap[:, 0], ap.mean(1)
+    mp, mr, map50, map = p.mean(), r.mean(), ap50.mean(), ap.mean()
+    nt = np.bincount(stats[3].astype(int), minlength=model.nc)  # number of targets per class
+else:
+    nt = torch.zeros(1)
+
+# Ausgabe der Ergebnisse
+print(f"mAP@0.5: {map50:.4f}, mAP@0.5:0.95: {map:.4f}")

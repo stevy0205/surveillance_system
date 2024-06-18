@@ -1,0 +1,8 @@
+wandb
+.vscode
+template.sh
+datasets/*
+exampleData/*
+*.pt
+*.pyc
+evals/*

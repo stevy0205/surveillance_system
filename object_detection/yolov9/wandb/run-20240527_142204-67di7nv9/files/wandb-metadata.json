@@ -1,0 +1,45 @@
+{
+    "os": "Windows-10-10.0.19045-SP0",
+    "python": "3.11.9",
+    "heartbeatAt": "2024-05-27T12:22:07.753286",
+    "startedAt": "2024-05-27T12:22:04.225192",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "D:\\surveillance-system\\object_detection\\yolov9\\yolov9_tryout.py",
+    "codePathLocal": "yolov9_tryout.py",
+    "codePath": "yolov9_tryout.py",
+    "git": {
+        "remote": "https://github.com/WongKinYiu/yolov9",
+        "commit": "b34767dae0fc05f0054e55f2ad2e71b2a0fd42be"
+    },
+    "email": "steven.uwague@outlook.de",
+    "root": "D:/surveillance-system/object_detection/yolov9",
+    "host": "DESKTOP-M3ARQ90",
+    "username": "steve",
+    "executable": "C:\\Users\\steve\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe",
+    "cpu_count": 2,
+    "cpu_count_logical": 4,
+    "cpu_freq": {
+        "current": 2400.0,
+        "min": 0.0,
+        "max": 2801.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2400.0,
+            "min": 0.0,
+            "max": 2801.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 107.4168701171875,
+            "used": 24.4930419921875
+        }
+    },
+    "memory": {
+        "total": 7.894092559814453
+    }
+}
