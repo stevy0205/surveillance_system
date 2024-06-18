@@ -12,8 +12,8 @@ exampleData/*
 *.pyc
 
 # Ignoriere den Inhalt dieses Verzeichnisses
-evals/*git branch -M main
+evals/*
 
 pose_detection/yolov9-hand-detection
 pose_detection/openPose/openpose
-
+object_detection/yolov9/yolov9-c.pt
