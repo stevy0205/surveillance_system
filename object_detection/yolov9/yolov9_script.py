@@ -32,7 +32,7 @@ model = YOLO("yolov9c.pt")
 #model = YOLO("/home/Steven/runs/detect/train/weights/best.pt")
 
 # Train the model on the COCO8 example dataset for 100 epochs
-results = model.train(data="coco8.yaml", epochs=100, imgsz=224)
+#results = model.train(data="coco8.yaml", epochs=100, imgsz=224)
 
 # Train the model on the knife dataset (https://universe.roboflow.com/sadi0v2/knife-dataset-lfxmz/dataset/4)
 #results = model.train(data="/home/Steven/surveillance_system/object_detection/yolov9/knife_dataset/data.yaml", epochs=100, imgsz=224)
@@ -44,7 +44,7 @@ results = model.train(data="coco8.yaml", epochs=100, imgsz=224)
 #results = model.train(data="/home/Steven/surveillance_system/object_detection/yolov9/rope_dataset/data.yaml", epochs=100, imgsz=224)
 
 # Train the model on the hang and rope dataset with aug (https://universe.roboflow.com/test-pgkqh/hang-rope/dataset/1)
-#results = model.train(data="/home/Steven/surveillance_system/object_detection/yolov9/hang_and_rope_dataset/data.yaml", epochs=100, imgsz=224)
+results = model.train(data="/home/Steven/surveillance_system/datasets/hang_and_rope_dataset/data.yaml", epochs=100, imgsz=224)
 
 # Display model information (optional)
 #model.info()

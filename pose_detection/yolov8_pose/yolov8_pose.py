@@ -10,8 +10,15 @@ import cv2
 
 # Train the model on coco128 pose
 #results = model.train(data="coco8-pose.yaml", epochs=100, imgsz=640)
+# Pfad zum aktuellen Verzeichnis der ausführenden Datei
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Relativer Pfad zum Modellgewicht
+relative_path = "../../evals/yolov8_pose_detector_coco128_100ep/weights/best.pt"
 
-model = YOLO("/home/Steven/runs/pose/train/weights/best.pt")  # load a custom model
+# Absoluten Pfad zum Modellgewicht aufbauen
+model_path = os.path.normpath(os.path.join(current_dir, relative_path))
+
+model = YOLO(model_path)  # load a custom model
 
 # Validate the model
 metrics = model.val()  # no arguments needed, dataset and settings remembered
@@ -19,15 +26,6 @@ metrics.box.map  # map50-95
 metrics.box.map50  # map50
 metrics.box.map75  # map75
 metrics.box.maps  # a list contains map50-95 of each category
-
-
-
-# Predict with the model
-results = model("/home/Steven/surveillance_system/pose_detection/yolov8_pose/WIN_20240619_13_44_03_Pro.jpg")  # predict on an image
-
-# Verzeichnis zum Speichern der Ergebnisse
-save_dir = "/home/Steven/surveillance_system/pose_detection/yolov8_pose/results"
-os.makedirs(save_dir, exist_ok=True)
 
 # Farben definieren
 colors = [
@@ -37,8 +35,21 @@ colors = [
     (64, 0, 0), (0, 64, 0), (0, 0, 64), (64, 64, 0), (64, 0, 64)
 ]
 
-# Funktion zum Visualisieren der Keypoints mit unterschiedlichen Farben
-def plot_keypoints(image, keypoints):
+# COCO Keypoint-Verbindungen
+keypoint_connections = [
+    (0, 1), (0, 2), (1, 3), (2, 4),  # Oberkörper
+    (5, 6), (5, 7), (7, 9), (6, 8),  # Arme
+    (10, 11), (5, 10), (6, 11),      # Hüfte und Beine
+    (11, 13), (10, 12), (12, 14), (13, 15)  # Beine
+]
+
+# Funktion zum Visualisieren der Keypoints und Verbindungen mit unterschiedlichen Farben
+def plot_keypoints_connections(image, keypoints):
+    for connection in keypoint_connections:
+        start_point = tuple(keypoints[connection[0]].astype(int))
+        end_point = tuple(keypoints[connection[1]].astype(int))
+        if all(start_point) and all(end_point):  # Stellen Sie sicher, dass die Punkte gültig sind
+            cv2.line(image, start_point, end_point, (0, 255, 255), 2)  # Gelbe Linien für Verbindungen
     for i, keypoint in enumerate(keypoints):
         x, y, confidence = keypoint
         if confidence > 0:  # Nur Keypoints mit einer Konfidenz größer als 0 anzeigen
@@ -47,8 +58,8 @@ def plot_keypoints(image, keypoints):
 
 
 # Pfade zum Eingabe- und Ausgabedateien
-input_video_path = "/home/Steven/surveillance_system/pose_detection/yolov8_pose/WIN_20240616_22_14_05_Pro.mp4"
-output_video_path = "/home/Steven/surveillance_system/pose_detection/yolov8_pose/output_video.mp4"
+input_video_path = "../surveillance_system/pose_detection/yolov8_pose/WIN_20240616_22_14_05_Pro.mp4"
+output_video_path = "../surveillance_system/pose_detection/yolov8_pose/output_video3.mp4"
 
 # Video öffnen
 cap = cv2.VideoCapture(input_video_path)
@@ -75,7 +86,7 @@ while cap.isOpened():
     for result in results:
         if hasattr(result, 'keypoints') and result.keypoints is not None:
             keypoints = result.keypoints.data.cpu().numpy()[0]  # Nehmen Sie die erste Pose an
-            frame = plot_keypoints(frame, keypoints)
+            frame = plot_keypoints_connections(frame, keypoints)
 
     # Frame ins Ausgabevideo schreiben
     out.write(frame)

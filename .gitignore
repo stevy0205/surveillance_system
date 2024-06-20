@@ -6,6 +6,7 @@ template.sh
 # Ignoriere den Inhalt dieser Verzeichnisse
 datasets/*
 exampleData/*
+data/*
 
 # Ignoriere spezifische Dateitypen
 *.pt
