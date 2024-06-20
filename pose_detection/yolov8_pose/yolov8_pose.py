@@ -42,7 +42,13 @@ keypoint_connections = [
     (10, 11), (5, 10), (6, 11),      # Hüfte und Beine
     (11, 13), (10, 12), (12, 14), (13, 15)  # Beine
 ]
-
+# Keypoint-Klassen
+keypoint_classes = [
+    "Nose", "Left Eye", "Right Eye", "Left Ear", "Right Ear", 
+    "Left Shoulder", "Right Shoulder", "Left Elbow", "Right Elbow", 
+    "Left Wrist", "Right Wrist", "Left Hip", "Right Hip", 
+    "Left Knee", "Right Knee", "Left Ankle", "Right Ankle"
+]
 # Funktion zum Visualisieren der Keypoints und Verbindungen mit unterschiedlichen Farben
 def plot_keypoints_connections(image, keypoints):
     for connection in keypoint_connections:
@@ -58,20 +64,20 @@ def plot_keypoints_connections(image, keypoints):
 
 
 # Pfade zum Eingabe- und Ausgabedateien
-input_video_path = "pose_detection\yolov8_pose\WIN_20240616_22_14_05_Pro.mp4"
+#input_video_path = "pose_detection\yolov8_pose\WIN_20240616_22_14_05_Pro.mp4"
+input_video_path = 0;
 output_video_path = "pose_detection\yolov8_pose\output_video4.mp4"
 
 # Überprüfung, ob der Eingabepfad existiert
 if not os.path.exists(input_video_path):
     print(f"Fehler: Der Pfad '{input_video_path}' existiert nicht.")
-else:
-    print("Der Eingabepfad ist gültig.")
+    exit()
 
 # Überprüfung, ob der Ausgabepfad existiert und schreibbar ist
 if not os.path.exists(output_video_path) or not os.access(output_video_path, os.W_OK):
     print(f"Fehler: Der Pfad '{output_video_path}' existiert nicht oder ist nicht schreibbar.")
-else:
-    print("Der Ausgabepfad ist gültig und schreibbar.")
+    exit()
+
 # Video öffnen
 cap = cv2.VideoCapture(input_video_path)
 
@@ -84,6 +90,10 @@ fps = cap.get(cv2.CAP_PROP_FPS)
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter(output_video_path, fourcc, fps, (frame_width, frame_height))
 
+
+# Fenster für die Anzeige der Pose öffnen
+cv2.namedWindow('Pose Detection', cv2.WINDOW_NORMAL)
+
 # Video frameweise verarbeiten
 while cap.isOpened():
     ret, frame = cap.read()
@@ -93,18 +103,46 @@ while cap.isOpened():
     # Vorhersage machen
     results = model(frame)
 
-    # Keypoints auf das Bild zeichnen
+    # Variablen für die Keypoints initialisieren
+    left_ear = None
+    right_ear = None
+    left_shoulder = None
+    right_shoulder = None
+    left_wrist = None
+    right_wrist = None
+
+    # Keypoints auf das Bild zeichnen und Koordinaten zwischenspeichern
     for result in results:
         if hasattr(result, 'keypoints') and result.keypoints is not None:
             keypoints = result.keypoints.data.cpu().numpy()[0]  # Nehmen Sie die erste Pose an
+            for i, keypoint in enumerate(keypoints):
+                x, y, confidence = keypoint
+                if confidence > 0.3:  # Nur Keypoints mit einer Konfidenz größer als 0 anzeigen
+                    if i == 17:  # linkes Ohr
+                        left_ear = (x, y, confidence)
+                    elif i == 18:  # rechtes Ohr
+                        right_ear = (x, y, confidence)
+                    elif i == 5:  # linkes Schulter
+                        left_shoulder = (x, y, confidence)
+                    elif i == 2:  # rechtes Schulter
+                        right_shoulder = (x, y, confidence)
+                    elif i == 7:  # linkes Handgelenk
+                        left_wrist = (x, y, confidence)
+                    elif i == 4:  # rechtes Handgelenk
+                        right_wrist = (x, y, confidence)
+                if confidence > 0.35:
+                    # Optional: Ausgabe der Koordinaten und Konfidenz
+                    print(f"{keypoint_classes[i]}: x={x}, y={y}, confidence={confidence}")
+            # Plot-Funktion außerhalb der Schleife aufrufen, um Verbindungen zwischen allen Keypoints zu zeichnen
             frame = plot_keypoints_connections(frame, keypoints)
 
-    # Frame ins Ausgabevideo schreiben
-    out.write(frame)
-    
-print("Video analyzed.")   
+    # Frame anzeigen
+    cv2.imshow('Pose Detection', frame)
+
+    # Press 'q' on the keyboard to exit the loop early
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
 # Ressourcen freigeben
 cap.release()
-out.release()
-
-
+cv2.destroyAllWindows()

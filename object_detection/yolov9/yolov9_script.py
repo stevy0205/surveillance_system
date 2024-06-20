@@ -7,14 +7,14 @@ from ultralytics import YOLO
 import matplotlib.pyplot as plt
 import torch
     
-def predict(chosen_model, img, classes=[43], conf=0.5):
+def predict(chosen_model, img, classes=[], conf=0.5):
     if classes:
         results = chosen_model.predict(img, classes=classes, conf=conf)
     else:
         results = chosen_model.predict(img, conf=conf)
     return results
 
-def predict_and_detect(chosen_model, img, classes=[43], conf=0.5, rectangle_thickness=2, text_thickness=1):
+def predict_and_detect(chosen_model, img, classes=[], conf=0.5, rectangle_thickness=2, text_thickness=1):
     results = predict(chosen_model, img, classes, conf=conf)
     for result in results:
         for box in result.boxes:
@@ -26,10 +26,10 @@ def predict_and_detect(chosen_model, img, classes=[43], conf=0.5, rectangle_thic
     return img, results
 
 # Build a YOLOv9c model from pretrained (COCO8 weight)
-model = YOLO("yolov9c.pt")
+#model = YOLO("yolov9c.pt")
 
 #Load Custom Model
-#model = YOLO("/home/Steven/runs/detect/train/weights/best.pt")
+model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveillance_system/evals/hand_and_face_results_100ep/weights/best.pt")
 
 # Train the model on the COCO8 example dataset for 100 epochs
 #results = model.train(data="coco8.yaml", epochs=100, imgsz=224)
@@ -44,7 +44,7 @@ model = YOLO("yolov9c.pt")
 #results = model.train(data="/home/Steven/surveillance_system/object_detection/yolov9/rope_dataset/data.yaml", epochs=100, imgsz=224)
 
 # Train the model on the hang and rope dataset with aug (https://universe.roboflow.com/test-pgkqh/hang-rope/dataset/1)
-results = model.train(data="/home/Steven/surveillance_system/datasets/hang_and_rope_dataset/data.yaml", epochs=100, imgsz=224)
+#results = model.train(data="/home/Steven/surveillance_system/datasets/hang_and_rope_dataset/data.yaml", epochs=100, imgsz=224)
 
 # Display model information (optional)
 #model.info()
@@ -53,15 +53,19 @@ results = model.train(data="/home/Steven/surveillance_system/datasets/hang_and_r
 #person_metrics = metrics.box.class_result(43) # Obtain metrics about the `Person` class (i.e., class 0)
 
 # Your video processing loop remains unchanged
-#video_path = r"D:\surveillance-system\data\ufcData\Anomaly-Videos-Part-1\Abuse\Abuse001_x264.mp4"
-#cap = cv2.VideoCapture(video_path)
-#while True:
-#    success, img = cap.read()
-#    if not success:
-#        break
-#    result_img, _ = predict_and_detect(model, img, classes=[], conf=0.5)
-#    cv2.imshow("Image", result_img)
-#    cv2.waitKey(1)
+video_path = 0
+cap = cv2.VideoCapture(video_path)
+while True:
+    success, img = cap.read()
+    if not success:
+        break
+    result_img, _ = predict_and_detect(model, img, classes=[], conf=0.379)
+    cv2.imshow("Image", result_img)
+    
+    # Press 'q' on the keyboard to exit the loop early
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+    cv2.waitKey(1)
     
 
 #image = cv2.imread("surveillance_system/data/knifeExample/knife2.jpeg")
