@@ -2,6 +2,8 @@ import os
 from matplotlib import pyplot as plt
 from ultralytics import YOLO
 import cv2
+import numpy as np
+import time
 
 # Load a model
 #model = YOLO("yolov8n-pose.yaml")  # build a new model from YAML
@@ -62,6 +64,10 @@ def plot_keypoints_connections(image, keypoints):
             cv2.circle(image, (int(x), int(y)), 5, colors[i % len(colors)], -1)
     return image
 
+# Funktion zur Berechnung der Euclidean-Distanz
+def euclidean_distance(point1, point2):
+    return np.linalg.norm(np.array(point1) - np.array(point2))
+
 
 # Pfade zum Eingabe- und Ausgabedateien
 #input_video_path = "pose_detection\yolov8_pose\WIN_20240616_22_14_05_Pro.mp4"
@@ -100,39 +106,56 @@ while cap.isOpened():
     if not ret:
         break
 
-    # Vorhersage machen
+ # Vorhersage machen
     results = model(frame)
 
     # Variablen für die Keypoints initialisieren
-    left_ear = None
-    right_ear = None
-    left_shoulder = None
-    right_shoulder = None
-    left_wrist = None
-    right_wrist = None
+    left_shoulder = (0,0,0)
+    right_shoulder = (0,0,0)
+    left_wrist =(0,0,0)
+    right_wrist = (0,0,0)
 
-    # Keypoints auf das Bild zeichnen und Koordinaten zwischenspeichern
+ # Keypoints auf das Bild zeichnen und Koordinaten zwischenspeichern
     for result in results:
         if hasattr(result, 'keypoints') and result.keypoints is not None:
             keypoints = result.keypoints.data.cpu().numpy()[0]  # Nehmen Sie die erste Pose an
             for i, keypoint in enumerate(keypoints):
                 x, y, confidence = keypoint
                 if confidence > 0.3:  # Nur Keypoints mit einer Konfidenz größer als 0 anzeigen
-                    if i == 17:  # linkes Ohr
-                        left_ear = (x, y, confidence)
-                    elif i == 18:  # rechtes Ohr
-                        right_ear = (x, y, confidence)
-                    elif i == 5:  # linkes Schulter
+                    if i == 5:  # linke Schulter
                         left_shoulder = (x, y, confidence)
-                    elif i == 2:  # rechtes Schulter
+                    elif i == 6:  # rechte Schulter
                         right_shoulder = (x, y, confidence)
-                    elif i == 7:  # linkes Handgelenk
+                    elif i == 9:  # linkes Handgelenk
                         left_wrist = (x, y, confidence)
-                    elif i == 4:  # rechtes Handgelenk
+                    elif i == 10:  # rechtes Handgelenk
                         right_wrist = (x, y, confidence)
-                if confidence > 0.35:
+                #if confidence > 0.35:
                     # Optional: Ausgabe der Koordinaten und Konfidenz
-                    print(f"{keypoint_classes[i]}: x={x}, y={y}, confidence={confidence}")
+                    #print(f"{keypoint_classes[i]}: x={x}, y={y}, confidence={confidence}")
+                    
+
+            # Überprüfen, ob alle benötigten Keypoints erkannt wurden
+            if (right_wrist is not None and right_shoulder is not None and
+                left_wrist is not None and left_shoulder is not None):
+                neck = ((left_shoulder[0] + right_shoulder[0]) / 2, (left_shoulder[1] + right_shoulder[1]) / 2)
+                neck_confidence = (left_shoulder[2] + right_shoulder[2]) / 2
+
+                bias = 100  # Beispielhafter Schwellenwert für die Nähe
+                hands_near_neck = False
+                if (left_wrist is not None and euclidean_distance(left_wrist[:2], neck) < bias) or \
+                   (right_wrist is not None and euclidean_distance(right_wrist[:2], neck) < bias):
+                    hands_near_neck = True
+                    print("Choke detected!")
+                    
+                if hands_near_neck:
+                    if hands_near_neck_start_time is None:
+                        hands_near_neck_start_time = time.time()
+                    elif time.time() - hands_near_neck_start_time > 2:
+                        print("Hands near neck detected for 2 seconds!")
+                else:
+                    hands_near_neck_start_time = None
+
             # Plot-Funktion außerhalb der Schleife aufrufen, um Verbindungen zwischen allen Keypoints zu zeichnen
             frame = plot_keypoints_connections(frame, keypoints)
 
