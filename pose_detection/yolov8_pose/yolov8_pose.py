@@ -21,11 +21,11 @@ model_path = os.path.normpath(os.path.join(current_dir, relative_path))
 model = YOLO(model_path)  # load a custom model
 
 # Validate the model
-metrics = model.val()  # no arguments needed, dataset and settings remembered
-metrics.box.map  # map50-95
-metrics.box.map50  # map50
-metrics.box.map75  # map75
-metrics.box.maps  # a list contains map50-95 of each category
+#metrics = model.val()  # no arguments needed, dataset and settings remembered
+#metrics.box.map  # map50-95
+#metrics.box.map50  # map50
+#metrics.box.map75  # map75
+#metrics.box.maps  # a list contains map50-95 of each category
 
 # Farben definieren
 colors = [
@@ -58,9 +58,20 @@ def plot_keypoints_connections(image, keypoints):
 
 
 # Pfade zum Eingabe- und Ausgabedateien
-input_video_path = "../surveillance_system/pose_detection/yolov8_pose/WIN_20240616_22_14_05_Pro.mp4"
-output_video_path = "../surveillance_system/pose_detection/yolov8_pose/output_video3.mp4"
+input_video_path = "pose_detection\yolov8_pose\WIN_20240616_22_14_05_Pro.mp4"
+output_video_path = "pose_detection\yolov8_pose\output_video4.mp4"
 
+# Überprüfung, ob der Eingabepfad existiert
+if not os.path.exists(input_video_path):
+    print(f"Fehler: Der Pfad '{input_video_path}' existiert nicht.")
+else:
+    print("Der Eingabepfad ist gültig.")
+
+# Überprüfung, ob der Ausgabepfad existiert und schreibbar ist
+if not os.path.exists(output_video_path) or not os.access(output_video_path, os.W_OK):
+    print(f"Fehler: Der Pfad '{output_video_path}' existiert nicht oder ist nicht schreibbar.")
+else:
+    print("Der Ausgabepfad ist gültig und schreibbar.")
 # Video öffnen
 cap = cv2.VideoCapture(input_video_path)
 
@@ -90,7 +101,8 @@ while cap.isOpened():
 
     # Frame ins Ausgabevideo schreiben
     out.write(frame)
-
+    
+print("Video analyzed.")   
 # Ressourcen freigeben
 cap.release()
 out.release()
