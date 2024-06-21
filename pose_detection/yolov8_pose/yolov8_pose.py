@@ -71,9 +71,10 @@ def euclidean_distance(point1, point2):
 
 # Pfade zum Eingabe- und Ausgabedateien
 #input_video_path = "pose_detection\yolov8_pose\WIN_20240616_22_14_05_Pro.mp4"
-input_video_path = 0;
-output_video_path = "pose_detection\yolov8_pose\output_video4.mp4"
+input_video_path = 0
+output_video_path = "pose_detection/yolov8_pose/output_video.mp4"
 
+    
 # Überprüfung, ob der Eingabepfad existiert
 if not os.path.exists(input_video_path):
     print(f"Fehler: Der Pfad '{input_video_path}' existiert nicht.")
@@ -106,8 +107,8 @@ while cap.isOpened():
     if not ret:
         break
 
- # Vorhersage machen
-    results = model(frame)
+    # Vorhersage machen
+    results = model(frame, verbose=False)
 
     # Variablen für die Keypoints initialisieren
     left_shoulder = (0,0,0)
