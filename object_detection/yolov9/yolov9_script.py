@@ -32,7 +32,7 @@ def predict_and_detect(chosen_model, img, classes=[], conf=0.5, rectangle_thickn
 #model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveillance_system/evals/hand_and_face_results_100ep/weights/best.pt")
 
 # Load Rope Model
-#model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveillance_system/evals/train_ropeDetector_100ep/weights/last.pt")
+#model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveillance_system/evals/hang_and_rope_dataset_100ep/weights/best.pt")
 
 # Load Knife Model
 model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveillance_system/evals/result_knifeDetector_set_100ep/weights/best.pt")
@@ -59,6 +59,7 @@ model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveil
 #person_metrics = metrics.box.class_result(43) # Obtain metrics about the `Person` class (i.e., class 0)
 
 # Your video processing loop remains unchanged
+#video_path = "C:\Users\steve\IdeaProjects\surveillance_system_vscode_win\surveillance_system\pose_detection\yolov8_pose\WIN_20240616_22_14_05_Pro.mp4"
 video_path = 0
 cap = cv2.VideoCapture(video_path)
 while True:
