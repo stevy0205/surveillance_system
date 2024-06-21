@@ -28,8 +28,14 @@ def predict_and_detect(chosen_model, img, classes=[], conf=0.5, rectangle_thickn
 # Build a YOLOv9c model from pretrained (COCO8 weight)
 #model = YOLO("yolov9c.pt")
 
-#Load Custom Model
-model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveillance_system/evals/hand_and_face_results_100ep/weights/best.pt")
+#Load Hands and face model
+#model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveillance_system/evals/hand_and_face_results_100ep/weights/best.pt")
+
+# Load Rope Model
+#model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveillance_system/evals/train_ropeDetector_100ep/weights/last.pt")
+
+# Load Knife Model
+model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveillance_system/evals/result_knifeDetector_set_100ep/weights/best.pt")
 
 # Train the model on the COCO8 example dataset for 100 epochs
 #results = model.train(data="coco8.yaml", epochs=100, imgsz=224)
