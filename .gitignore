@@ -15,3 +15,10 @@ data/*
 # Ignoriere den Inhalt dieses Verzeichnisses
 evals/*
 
+data/recordings/choke
+data/recordings/knife
+data/recordings/normal
+data/recordings/rope
+data/recordings/scream
+
+scream_detection/human_scream_detection

@@ -30,16 +30,41 @@ def predict_and_detect(chosen_model, img, classes=[], conf=0.5, rectangle_thickn
 model = YOLO("C:/Users/steve/IdeaProjects/surveillance_system_vscode_win/surveillance_system/evals/result_knifeDetector_set_100ep/weights/best.pt")
 
 video_path = 0
-cap = cv2.VideoCapture(video_path)
+# Stream
+cap = cv2.VideoCapture(f'rtsp://stream:KI@JVA123@141.21.39.122:554/axis-media/media.amp?videocodec=h264&resolution=800x600')
 while True:
     success, img = cap.read()
     if not success:
         break
-    result_img, _ = predict_and_detect(model, img, classes=[], conf=0.379)
-    cv2.imshow("Image", result_img)
     
+    # Lesen des Live-Streams
+    ret, frame = cap.read()
+    height, width, layers = frame.shape
+    frame = cv2.resize(frame, (width // 2, height // 2))
+    result_img, _ = predict_and_detect(model, img, classes=[], conf=0.379)
+    # Anzeigen des Video-Frames
+    cv2.imshow("RTSP Camera Stream", frame)
+
     # Press 'q' on the keyboard to exit the loop early
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     cv2.waitKey(1)
+    # Hauptfunktion
+if __name__ == "__main__":
+    # Freigabe und Schließen des Streams
+    cap.release()
+    cv2.destroyAllWindows()
+# Video path
+#cap = cv2.VideoCapture(video_path)
+#while True:
+#    success, img = cap.read()
+#    if not success:
+#      break
+ #   result_img, _ = predict_and_detect(model, img, classes=[], conf=0.379)
+  #  cv2.imshow("Image", result_img)
+   # 
+    ## Press 'q' on the keyboard to exit the loop early
+    #if cv2.waitKey(1) & 0xFF == ord('q'):
+     #   break
+    #cv2.waitKey(1)
     
